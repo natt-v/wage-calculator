@@ -314,7 +314,7 @@
                 </div>
                 <div class="result-item">
                     <span>ค่าจ้าง OT วันธรรมดา:</span>
-                    <span id="weekdayOTRate" class="amount">-</span>
+                    <span id="weekdayOTRateDisplay" class="amount">-</span>
                 </div>
                 <div class="result-item">
                     <span>ค่าจ้าง OT วันเสาร์:</span>
@@ -469,7 +469,7 @@
             document.getElementById('totalWorkingDays').textContent = `${workingDays} วัน`;
             document.getElementById('dailyRate').textContent = `${dailyRate.toFixed(2)} บาท`;
             document.getElementById('hourlyRate').textContent = `${hourlyRate.toFixed(2)} บาท`;
-            document.getElementById('weekdayOTRate').textContent = `${weekdayOTHourlyRate.toFixed(2)} บาท (×${weekdayOTRate})`;
+            document.getElementById('weekdayOTRateDisplay').textContent = `${weekdayOTHourlyRate.toFixed(2)} บาท (×${weekdayOTRate})`;
             document.getElementById('saturdayOTRateDisplay').textContent = `${saturdayOTHourlyRate.toFixed(2)} บาท (×${saturdayOTRate})`;
             document.getElementById('sundayOTRateDisplay').textContent = `${sundayOTHourlyRate.toFixed(2)} บาท (×${sundayOTRate})`;
             document.getElementById('baseSalaryAmount').textContent = `${baseSalary.toLocaleString()} บาท`;
