@@ -1,1 +1,1 @@
-# wage-calc
+# wage-calculator
