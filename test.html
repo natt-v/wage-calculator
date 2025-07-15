@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wage Calculator Tests</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .test-result {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .test-pass {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .test-fail {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+        }
+        .test-section h3 {
+            margin-top: 0;
+            color: #495057;
+        }
+        #testResults {
+            margin-top: 20px;
+        }
+        .run-tests-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            display: block;
+            margin: 20px auto;
+        }
+        .run-tests-btn:hover {
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🧪 Wage Calculator Tests</h1>
+        
+        <button class="run-tests-btn" onclick="runAllTests()">Run All Tests</button>
+        
+        <div id="testResults"></div>
+    </div>
+
+    <script>
+        // Copy the core calculation functions from the main file
+        function getWorkingDays(year, month, workPattern) {
+            const date = new Date(year, month - 1, 1);
+            const lastDay = new Date(year, month, 0).getDate();
+            let workingDays = 0;
+            
+            for (let day = 1; day <= lastDay; day++) {
+                date.setDate(day);
+                const dayOfWeek = date.getDay();
+                
+                if (workPattern === '5days') {
+                    if (dayOfWeek >= 1 && dayOfWeek <= 5) {
+                        workingDays++;
+                    }
+                } else if (workPattern === '6days') {
+                    if (dayOfWeek >= 1 && dayOfWeek <= 6) {
+                        workingDays++;
+                    }
+                } else if (workPattern === '7days') {
+                    workingDays++;
+                }
+            }
+            return workingDays;
+        }
+
+        function calculateWage(baseSalary, year, month, workPattern, absentDays, weekdayOT, saturdayOT, sundayOT, weekdayOTRate, saturdayOTRate, sundayOTRate) {
+            const workingDays = getWorkingDays(year, month, workPattern);
+            const dailyRate = baseSalary / workingDays;
+            const hourlyRate = dailyRate / 8;
+            const weekdayOTHourlyRate = hourlyRate * weekdayOTRate;
+            const saturdayOTHourlyRate = hourlyRate * saturdayOTRate;
+            const sundayOTHourlyRate = hourlyRate * sundayOTRate;
+            
+            const absentDeduction = dailyRate * absentDays;
+            const weekdayOTAmount = weekdayOTHourlyRate * weekdayOT;
+            const saturdayOTAmount = saturdayOTHourlyRate * saturdayOT;
+            const sundayOTAmount = sundayOTHourlyRate * sundayOT;
+            const netSalary = baseSalary - absentDeduction + weekdayOTAmount + saturdayOTAmount + sundayOTAmount;
+            
+            return {
+                workingDays,
+                dailyRate,
+                hourlyRate,
+                weekdayOTHourlyRate,
+                saturdayOTHourlyRate,
+                sundayOTHourlyRate,
+                absentDeduction,
+                weekdayOTAmount,
+                saturdayOTAmount,
+                sundayOTAmount,
+                netSalary
+            };
+        }
+
+        // Test framework
+        let testResults = [];
+
+        function assert(condition, message) {
+            const timestamp = new Date().toLocaleString('th-TH');
+            if (condition) {
+                testResults.push({ passed: true, message, timestamp });
+            } else {
+                testResults.push({ passed: false, message, timestamp });
+            }
+        }
+
+        function assertEqual(actual, expected, message) {
+            const timestamp = new Date().toLocaleString('th-TH');
+            if (Math.abs(actual - expected) < 0.01) {
+                testResults.push({ passed: true, message, timestamp });
+            } else {
+                testResults.push({ passed: false, message: `${message} - Expected: ${expected}, Actual: ${actual}`, timestamp });
+            }
+        }
+
+        function runTest(testName, testFunction) {
+            console.log(`Running test: ${testName}`);
+            const startTime = new Date();
+            testFunction();
+            const endTime = new Date();
+            const duration = endTime - startTime;
+            
+            // Add timestamp to last test results
+            if (testResults.length > 0) {
+                const lastResult = testResults[testResults.length - 1];
+                lastResult.timestamp = endTime.toLocaleString('th-TH');
+                lastResult.duration = duration;
+            }
+        }
+
+        // Test cases
+        function testWorkingDaysCalculation() {
+            // Test January 2024 (31 days)
+            const jan2024_5days = getWorkingDays(2024, 1, '5days');
+            assertEqual(jan2024_5days, 23, 'January 2024 should have 23 working days (5-day week)');
+            
+            const jan2024_6days = getWorkingDays(2024, 1, '6days');
+            assertEqual(jan2024_6days, 27, 'January 2024 should have 27 working days (6-day week)');
+            
+            const jan2024_7days = getWorkingDays(2024, 1, '7days');
+            assertEqual(jan2024_7days, 31, 'January 2024 should have 31 working days (7-day week)');
+        }
+
+        function testBasicSalaryCalculation() {
+            // Test basic salary calculation without OT or absent days
+            const result = calculateWage(30000, 2024, 1, '5days', 0, 0, 0, 0, 1.5, 1.5, 2.0);
+            
+            assertEqual(result.workingDays, 23, 'Should have 23 working days');
+            assertEqual(result.dailyRate, 30000/23, 'Daily rate should be baseSalary/workingDays');
+            assertEqual(result.hourlyRate, (30000/23)/8, 'Hourly rate should be dailyRate/8');
+            assertEqual(result.netSalary, 30000, 'Net salary should equal base salary with no deductions/OT');
+        }
+
+        function testAbsentDaysDeduction() {
+            // Test salary with absent days
+            const result = calculateWage(30000, 2024, 1, '5days', 2, 0, 0, 0, 1.5, 1.5, 2.0);
+            const expectedDeduction = (30000/23) * 2;
+            
+            assertEqual(result.absentDeduction, expectedDeduction, 'Absent deduction should be dailyRate * absentDays');
+            assertEqual(result.netSalary, 30000 - expectedDeduction, 'Net salary should be reduced by absent deduction');
+        }
+
+        function testOTCalculation() {
+            // Test OT calculation
+            const result = calculateWage(30000, 2024, 1, '5days', 0, 10, 5, 3, 1.5, 1.5, 2.0);
+            const hourlyRate = (30000/23)/8;
+            
+            const expectedWeekdayOT = hourlyRate * 1.5 * 10;
+            const expectedSaturdayOT = hourlyRate * 1.5 * 5;
+            const expectedSundayOT = hourlyRate * 2.0 * 3;
+            
+            assertEqual(result.weekdayOTAmount, expectedWeekdayOT, 'Weekday OT amount should be correct');
+            assertEqual(result.saturdayOTAmount, expectedSaturdayOT, 'Saturday OT amount should be correct');
+            assertEqual(result.sundayOTAmount, expectedSundayOT, 'Sunday OT amount should be correct');
+            
+            const expectedTotal = 30000 + expectedWeekdayOT + expectedSaturdayOT + expectedSundayOT;
+            assertEqual(result.netSalary, expectedTotal, 'Net salary should include all OT amounts');
+        }
+
+        function testComplexCalculation() {
+            // Test complex calculation with all factors
+            const result = calculateWage(40000, 2024, 2, '6days', 1, 8, 4, 2, 1.5, 1.5, 2.0);
+            
+            const workingDays = getWorkingDays(2024, 2, '6days');
+            const dailyRate = 40000 / workingDays;
+            const hourlyRate = dailyRate / 8;
+            
+            const expectedAbsentDeduction = dailyRate * 1;
+            const expectedWeekdayOT = hourlyRate * 1.5 * 8;
+            const expectedSaturdayOT = hourlyRate * 1.5 * 4;
+            const expectedSundayOT = hourlyRate * 2.0 * 2;
+            const expectedNet = 40000 - expectedAbsentDeduction + expectedWeekdayOT + expectedSaturdayOT + expectedSundayOT;
+            
+            assertEqual(result.netSalary, expectedNet, 'Complex calculation should be correct');
+        }
+
+        function testEdgeCases() {
+            // Test with zero base salary
+            const result1 = calculateWage(0, 2024, 1, '5days', 0, 0, 0, 0, 1.5, 1.5, 2.0);
+            assertEqual(result1.netSalary, 0, 'Zero base salary should result in zero net salary');
+            
+            // Test with very high OT rates
+            const result2 = calculateWage(20000, 2024, 1, '5days', 0, 1, 0, 0, 3.0, 1.5, 2.0);
+            const hourlyRate = (20000/23)/8;
+            const expectedOT = hourlyRate * 3.0 * 1;
+            assertEqual(result2.weekdayOTAmount, expectedOT, 'High OT rate should be calculated correctly');
+        }
+
+        function runAllTests() {
+            testResults = [];
+            
+            runTest('Working Days Calculation', testWorkingDaysCalculation);
+            runTest('Basic Salary Calculation', testBasicSalaryCalculation);
+            runTest('Absent Days Deduction', testAbsentDaysDeduction);
+            runTest('OT Calculation', testOTCalculation);
+            runTest('Complex Calculation', testComplexCalculation);
+            runTest('Edge Cases', testEdgeCases);
+            
+            displayResults();
+        }
+
+        function displayResults() {
+            const resultsDiv = document.getElementById('testResults');
+            let html = '';
+            
+            let passed = 0;
+            let failed = 0;
+            
+            testResults.forEach(result => {
+                const className = result.passed ? 'test-pass' : 'test-fail';
+                const status = result.passed ? 'PASS' : 'FAIL';
+                html += `<div class="test-result ${className}">
+                    <div>${status}: ${result.message}</div>
+                    <div style="font-size: 12px; color: #666; margin-top: 5px;">⏰ ${result.timestamp}</div>
+                </div>`;
+                
+                if (result.passed) passed++;
+                else failed++;
+            });
+            
+            const runTime = new Date().toLocaleString('th-TH');
+            const summary = `<div class="test-section">
+                <h3>Test Summary</h3>
+                <p>Run Time: ${runTime}</p>
+                <p>Total Tests: ${testResults.length}</p>
+                <p>Passed: ${passed}</p>
+                <p>Failed: ${failed}</p>
+                <p>Success Rate: ${((passed/testResults.length) * 100).toFixed(1)}%</p>
+            </div>`;
+            
+            resultsDiv.innerHTML = summary + html;
+        }
+
+        // Initialize page without auto-running tests
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('testResults').innerHTML = '<div class="test-section"><h3>Ready to Test</h3><p>Click "Run All Tests" button to start testing.</p></div>';
+        });
+    </script>
+</body>
+</html>
