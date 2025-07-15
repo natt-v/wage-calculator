@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ตารางคำนวณเงินเดือนและ OT</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 0;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        h1 {
+            color: white;
+            text-align: center;
+            margin: 0;
+            padding: 30px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-size: 28px;
+            font-weight: 600;
+        }
+        .input-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin: 30px;
+            padding: 35px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 15px;
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #2c3e50;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        input, select {
+            padding: 15px 20px;
+            border: 2px solid #e1e8ed;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background-color: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            transform: translateY(-2px);
+        }
+        input:hover, select:hover {
+            border-color: #b8c6f0;
+            transform: translateY(-1px);
+        }
+        .calculate-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 18px 35px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+            margin-top: 10px;
+        }
+        .calculate-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 25px rgba(102, 126, 234, 0.4);
+        }
+        .calculate-btn:active {
+            transform: translateY(-1px);
+        }
+        .results {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin: 30px;
+        }
+        .result-card {
+            background: linear-gradient(135deg, #f8fafc 0%, #e3f2fd 100%);
+            padding: 25px;
+            border-radius: 15px;
+            border-left: 5px solid #667eea;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+            transition: transform 0.3s ease;
+        }
+        .result-card:hover {
+            transform: translateY(-5px);
+        }
+        .result-card h3 {
+            color: #2c3e50;
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-size: 18px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 12px 0;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            font-size: 15px;
+        }
+        .result-item:last-child {
+            border-bottom: none;
+        }
+        .result-item span:first-child {
+            font-weight: 500;
+            color: #34495e;
+        }
+        .amount {
+            font-weight: bold;
+            color: #27ae60;
+            background-color: rgba(39, 174, 96, 0.1);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+        .deduction {
+            color: #e74c3c;
+            background-color: rgba(231, 76, 60, 0.1);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        .total {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 20px;
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+        .total .result-item {
+            border-bottom: none;
+            font-size: 18px;
+            font-weight: 600;
+            margin: 0;
+        }
+        .total .result-item span {
+            color: white;
+        }
+        .working-days-info {
+            background: linear-gradient(135deg, #e8f4f8 0%, #d1ecf1 100%);
+            padding: 20px;
+            border-radius: 12px;
+            margin: 30px;
+            border-left: 5px solid #3498db;
+            font-weight: 500;
+            color: #2c3e50;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.1);
+        }
+        .input-group-special {
+            grid-column: 1 / -1;
+            display: flex;
+            justify-content: center;
+            margin-top: 10px;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 15px;
+            }
+            .input-section {
+                grid-template-columns: 1fr;
+                margin: 20px;
+                padding: 25px;
+            }
+            .results {
+                grid-template-columns: 1fr;
+                margin: 20px;
+            }
+            h1 {
+                font-size: 24px;
+                padding: 25px 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📊 ตารางคำนวณเงินเดือนและ OT</h1>
+        
+        <div class="input-section">
+            <div class="input-group">
+                <label for="baseSalary">💰 ฐานเงินเดือน (บาท)</label>
+                <input type="number" id="baseSalary" value="0" min="0">
+            </div>
+            
+            <div class="input-group">
+                <label for="year">📅 ปี</label>
+                <select id="year">
+                    <!-- ปีจะถูกสร้างใน JavaScript -->
+                </select>
+            </div>
+            
+            <div class="input-group">
+                <label for="month">📆 เดือน</label>
+                <select id="month">
+                    <option value="01">มกราคม</option>
+                    <option value="02">กุมภาพันธ์</option>
+                    <option value="03">มีนาคม</option>
+                    <option value="04">เมษายน</option>
+                    <option value="05">พฤษภาคม</option>
+                    <option value="06">มิถุนายน</option>
+                    <option value="07">กรกฎาคม</option>
+                    <option value="08">สิงหาคม</option>
+                    <option value="09">กันยายน</option>
+                    <option value="10">ตุลาคม</option>
+                    <option value="11">พฤศจิกายน</option>
+                    <option value="12">ธันวาคม</option>
+                </select>
+            </div>
+            
+            <div class="input-group">
+                <label for="absentDays">❌ จำนวนวันขาดงาน</label>
+                <input type="number" id="absentDays" value="0" min="0">
+            </div>
+            
+            <div class="input-group">
+                <label for="weekdayOT">⏰ OT วันธรรมดา (ชั่วโมง)</label>
+                <input type="number" id="weekdayOT" value="0" min="0" step="0.5">
+            </div>
+            
+            <div class="input-group">
+                <label for="saturdayOT">🏪 OT วันเสาร์ (ชั่วโมง)</label>
+                <input type="number" id="saturdayOT" value="0" min="0" step="0.5">
+            </div>
+            
+            <div class="input-group">
+                <label for="sundayOT">🏡 OT วันอาทิตย์ (ชั่วโมง)</label>
+                <input type="number" id="sundayOT" value="0" min="0" step="0.5">
+            </div>
+            
+            <div class="input-group">
+                <label for="weekendWorkDays">🗓️ รูปแบบการทำงาน</label>
+                <select id="weekendWorkDays">
+                    <option value="5days">หยุดเสาร์-อาทิตย์ (จ-ศ)</option>
+                    <option value="6days">หยุดอาทิตย์ (จ-ส)</option>
+                    <option value="7days">ทำงานทุกวัน</option>
+                </select>
+            </div>
+            
+            <div class="input-group">
+                <label for="weekdayOTRate">📈 อัตรา OT วันธรรมดา (เท่า)</label>
+                <input type="number" id="weekdayOTRate" value="1.5" min="1" step="0.1">
+            </div>
+            
+            <div class="input-group">
+                <label for="saturdayOTRate">📊 อัตรา OT วันเสาร์ (เท่า)</label>
+                <input type="number" id="saturdayOTRate" value="1.5" min="1" step="0.1">
+            </div>
+            
+            <div class="input-group">
+                <label for="sundayOTRate">🌅 อัตรา OT วันอาทิตย์ (เท่า)</label>
+                <input type="number" id="sundayOTRate" value="1.5" min="1" step="0.1">
+            </div>
+            
+            <div class="input-group-special">
+                <button class="calculate-btn" onclick="calculateSalary()">🔍 คำนวณเงินเดือน</button>
+            </div>
+        </div>
+        
+        <div class="working-days-info" id="workingDaysInfo">
+            <strong>ข้อมูลวันทำการ:</strong> <span id="workingDaysText"></span>
+        </div>
+        
+        <div class="results" id="results" style="display: none;">
+            <div class="result-card">
+                <h3>💰 รายละเอียดการคำนวณ</h3>
+                <div class="result-item">
+                    <span>วันทำการในเดือน:</span>
+                    <span id="totalWorkingDays" class="amount">-</span>
+                </div>
+                <div class="result-item">
+                    <span>ค่าจ้างรายวัน:</span>
+                    <span id="dailyRate" class="amount">-</span>
+                </div>
+                <div class="result-item">
+                    <span>ค่าจ้างรายชั่วโมง:</span>
+                    <span id="hourlyRate" class="amount">-</span>
+                </div>
+                <div class="result-item">
+                    <span>ค่าจ้าง OT วันธรรมดา:</span>
+                    <span id="weekdayOTRate" class="amount">-</span>
+                </div>
+                <div class="result-item">
+                    <span>ค่าจ้าง OT วันเสาร์:</span>
+                    <span id="saturdayOTRateDisplay" class="amount">-</span>
+                </div>
+                <div class="result-item">
+                    <span>ค่าจ้าง OT วันอาทิตย์:</span>
+                    <span id="sundayOTRateDisplay" class="amount">-</span>
+                </div>
+            </div>
+            
+            <div class="result-card">
+                <h3>📊 รายได้และรายจ่าย</h3>
+                <div class="result-item">
+                    <span>เงินเดือนฐาน:</span>
+                    <span id="baseSalaryAmount" class="amount">-</span>
+                </div>
+                <div class="result-item">
+                    <span>หักเงินขาดงาน:</span>
+                    <span id="absentDeduction" class="deduction">-</span>
+                </div>
+                <div class="result-item">
+                    <span>OT วันธรรมดา:</span>
+                    <span id="weekdayOTAmount" class="amount">-</span>
+                </div>
+                <div class="result-item">
+                    <span>OT วันเสาร์:</span>
+                    <span id="saturdayOTAmount" class="amount">-</span>
+                </div>
+                <div class="result-item">
+                    <span>OT วันอาทิตย์:</span>
+                    <span id="sundayOTAmount" class="amount">-</span>
+                </div>
+                <div class="total">
+                    <div class="result-item">
+                        <span>เงินเดือนสุทธิ:</span>
+                        <span id="netSalary">-</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const monthNames = {
+            '01': 'มกราคม',
+            '02': 'กุมภาพันธ์',
+            '03': 'มีนาคม',
+            '04': 'เมษายน',
+            '05': 'พฤษภาคม',
+            '06': 'มิถุนายน',
+            '07': 'กรกฎาคม',
+            '08': 'สิงหาคม',
+            '09': 'กันยายน',
+            '10': 'ตุลาคม',
+            '11': 'พฤศจิกายน',
+            '12': 'ธันวาคม'
+        };
+
+        // ฟังก์ชันคำนวณวันทำการตามรูปแบบการทำงาน
+        function getWorkingDays(year, month, workPattern) {
+            const date = new Date(year, month - 1, 1); // วันแรกของเดือน
+            const lastDay = new Date(year, month, 0).getDate(); // วันสุดท้ายของเดือน
+            let workingDays = 0;
+            
+            for (let day = 1; day <= lastDay; day++) {
+                date.setDate(day);
+                const dayOfWeek = date.getDay(); // 0=อาทิตย์, 1=จันทร์, ..., 6=เสาร์
+                
+                if (workPattern === '5days') {
+                    // จันทร์-ศุกร์
+                    if (dayOfWeek >= 1 && dayOfWeek <= 5) {
+                        workingDays++;
+                    }
+                } else if (workPattern === '6days') {
+                    // จันทร์-เสาร์
+                    if (dayOfWeek >= 1 && dayOfWeek <= 6) {
+                        workingDays++;
+                    }
+                } else if (workPattern === '7days') {
+                    // ทุกวัน
+                    workingDays++;
+                }
+            }
+            return workingDays;
+        }
+
+        // สร้างตัวเลือกปี (5 ปีย้อนหลัง ถึง 5 ปีข้างหน้า)
+        function initializeYearOptions() {
+            const yearSelect = document.getElementById('year');
+            const currentYear = new Date().getFullYear();
+            
+            for (let year = currentYear - 5; year <= currentYear + 10; year++) {
+                const option = document.createElement('option');
+                option.value = year;
+                option.textContent = `${year + 543}`; // แสดงเป็นปี พ.ศ.
+                if (year === currentYear) {
+                    option.selected = true;
+                }
+                yearSelect.appendChild(option);
+            }
+        }
+
+        function updateWorkingDaysInfo() {
+            const year = parseInt(document.getElementById('year').value);
+            const month = document.getElementById('month').value;
+            const workPattern = document.getElementById('weekendWorkDays').value;
+            const workingDays = getWorkingDays(year, parseInt(month), workPattern);
+            const monthName = monthNames[month];
+            const yearThai = year + 543;
+            
+            let workDaysText = '';
+            if (workPattern === '5days') {
+                workDaysText = 'จันทร์-ศุกร์';
+            } else if (workPattern === '6days') {
+                workDaysText = 'จันทร์-เสาร์';
+            } else {
+                workDaysText = 'ทุกวัน';
+            }
+            
+            document.getElementById('workingDaysText').textContent = 
+                `${monthName} ${yearThai} มี ${workingDays} วันทำการ (${workDaysText})`;
+        }
+
+        function calculateSalary() {
+            const baseSalary = parseFloat(document.getElementById('baseSalary').value) || 0;
+            const year = parseInt(document.getElementById('year').value);
+            const month = document.getElementById('month').value;
+            const workPattern = document.getElementById('weekendWorkDays').value;
+            const absentDays = parseInt(document.getElementById('absentDays').value) || 0;
+            const weekdayOT = parseFloat(document.getElementById('weekdayOT').value) || 0;
+            const saturdayOT = parseFloat(document.getElementById('saturdayOT').value) || 0;
+            const sundayOT = parseFloat(document.getElementById('sundayOT').value) || 0;
+            const weekdayOTRate = parseFloat(document.getElementById('weekdayOTRate').value) || 1.5;
+            const saturdayOTRate = parseFloat(document.getElementById('saturdayOTRate').value) || 1.5;
+            const sundayOTRate = parseFloat(document.getElementById('sundayOTRate').value) || 2.0;
+            
+            const workingDays = getWorkingDays(year, parseInt(month), workPattern);
+            const dailyRate = baseSalary / workingDays;
+            const hourlyRate = dailyRate / 8;
+            const weekdayOTHourlyRate = hourlyRate * weekdayOTRate;
+            const saturdayOTHourlyRate = hourlyRate * saturdayOTRate;
+            const sundayOTHourlyRate = hourlyRate * sundayOTRate;
+            
+            const absentDeduction = dailyRate * absentDays;
+            const weekdayOTAmount = weekdayOTHourlyRate * weekdayOT;
+            const saturdayOTAmount = saturdayOTHourlyRate * saturdayOT;
+            const sundayOTAmount = sundayOTHourlyRate * sundayOT;
+            const netSalary = baseSalary - absentDeduction + weekdayOTAmount + saturdayOTAmount + sundayOTAmount;
+            
+            // อัพเดทผลลัพธ์
+            document.getElementById('totalWorkingDays').textContent = `${workingDays} วัน`;
+            document.getElementById('dailyRate').textContent = `${dailyRate.toFixed(2)} บาท`;
+            document.getElementById('hourlyRate').textContent = `${hourlyRate.toFixed(2)} บาท`;
+            document.getElementById('weekdayOTRate').textContent = `${weekdayOTHourlyRate.toFixed(2)} บาท (×${weekdayOTRate})`;
+            document.getElementById('saturdayOTRateDisplay').textContent = `${saturdayOTHourlyRate.toFixed(2)} บาท (×${saturdayOTRate})`;
+            document.getElementById('sundayOTRateDisplay').textContent = `${sundayOTHourlyRate.toFixed(2)} บาท (×${sundayOTRate})`;
+            document.getElementById('baseSalaryAmount').textContent = `${baseSalary.toLocaleString()} บาท`;
+            document.getElementById('absentDeduction').textContent = absentDays > 0 ? `-${absentDeduction.toFixed(2)} บาท` : `0 บาท`;
+            document.getElementById('weekdayOTAmount').textContent = weekdayOT > 0 ? `+${weekdayOTAmount.toFixed(2)} บาท` : `0 บาท`;
+            document.getElementById('saturdayOTAmount').textContent = saturdayOT > 0 ? `+${saturdayOTAmount.toFixed(2)} บาท` : `0 บาท`;
+            document.getElementById('sundayOTAmount').textContent = sundayOT > 0 ? `+${sundayOTAmount.toFixed(2)} บาท` : `0 บาท`;
+            document.getElementById('netSalary').textContent = `${netSalary.toFixed(2)} บาท`;
+            
+            document.getElementById('results').style.display = 'grid';
+        }
+
+        // เริ่มต้นระบบ
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeYearOptions();
+            
+            // ตั้งค่าเดือนปัจจุบัน
+            const currentMonth = new Date().getMonth() + 1;
+            document.getElementById('month').value = currentMonth.toString().padStart(2, '0');
+            
+            // Event listeners
+            document.getElementById('year').addEventListener('change', updateWorkingDaysInfo);
+            document.getElementById('month').addEventListener('change', updateWorkingDaysInfo);
+            document.getElementById('weekendWorkDays').addEventListener('change', updateWorkingDaysInfo);
+            
+            // แสดงข้อมูลเริ่มต้น
+            updateWorkingDaysInfo();
+            calculateSalary();
+        });
+    </script>
+</body>
+</html>
