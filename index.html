@@ -482,13 +482,60 @@
             document.getElementById('results').style.display = 'grid';
         }
 
+        // ฟังก์ชันสำหรับดึงค่าจาก URL parameters
+        function getURLParameter(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
+        }
+
+        // ฟังก์ชันสำหรับโหลดค่าจาก URL parameters
+        function loadFromURLParams() {
+            const baseSalary = getURLParameter('baseSalary');
+            const year = getURLParameter('year');
+            const month = getURLParameter('month');
+            const absentDays = getURLParameter('absentDays');
+            const weekdayOT = getURLParameter('weekdayOT');
+            const saturdayOT = getURLParameter('saturdayOT');
+            const sundayOT = getURLParameter('sundayOT');
+            const weekdayOTRate = getURLParameter('weekdayOTRate');
+            const saturdayOTRate = getURLParameter('saturdayOTRate');
+            const sundayOTRate = getURLParameter('sundayOTRate');
+            const weekendWorkDays = getURLParameter('weekendWorkDays');
+
+            if (baseSalary) document.getElementById('baseSalary').value = baseSalary;
+            if (year) document.getElementById('year').value = year;
+            if (month) document.getElementById('month').value = month.padStart(2, '0');
+            if (absentDays) document.getElementById('absentDays').value = absentDays;
+            if (weekdayOT) document.getElementById('weekdayOT').value = weekdayOT;
+            if (saturdayOT) document.getElementById('saturdayOT').value = saturdayOT;
+            if (sundayOT) document.getElementById('sundayOT').value = sundayOT;
+            if (weekdayOTRate) document.getElementById('weekdayOTRate').value = weekdayOTRate;
+            if (saturdayOTRate) document.getElementById('saturdayOTRate').value = saturdayOTRate;
+            if (sundayOTRate) document.getElementById('sundayOTRate').value = sundayOTRate;
+            if (weekendWorkDays) {
+                // แปลงค่า weekendWorkDays จาก URL parameter
+                if (weekendWorkDays === '5') {
+                    document.getElementById('weekendWorkDays').value = '5days';
+                } else if (weekendWorkDays === '6') {
+                    document.getElementById('weekendWorkDays').value = '6days';
+                } else if (weekendWorkDays === '7') {
+                    document.getElementById('weekendWorkDays').value = '7days';
+                }
+            }
+        }
+
         // เริ่มต้นระบบ
         document.addEventListener('DOMContentLoaded', function() {
             initializeYearOptions();
             
-            // ตั้งค่าเดือนปัจจุบัน
-            const currentMonth = new Date().getMonth() + 1;
-            document.getElementById('month').value = currentMonth.toString().padStart(2, '0');
+            // โหลดค่าจาก URL parameters ก่อน
+            loadFromURLParams();
+            
+            // ถ้าไม่มีค่าจาก URL parameters ให้ใช้ค่าเดือนปัจจุบัน
+            if (!getURLParameter('month')) {
+                const currentMonth = new Date().getMonth() + 1;
+                document.getElementById('month').value = currentMonth.toString().padStart(2, '0');
+            }
             
             // Event listeners
             document.getElementById('year').addEventListener('change', updateWorkingDaysInfo);
